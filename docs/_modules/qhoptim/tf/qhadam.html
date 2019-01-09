@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qhoptim.tf.qhadam &mdash; qhoptim 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> qhoptim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyt.html">Quasi-hyperbolic optimizers for PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tf.html">Quasi-hyperbolic optimizers for TensorFlow</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qhoptim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>qhoptim.tf.qhadam</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for qhoptim.tf.qhadam</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the MIT license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">control_flow_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">resource_variable_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.training</span> <span class="k">import</span> <span class="n">optimizer</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.training</span> <span class="k">import</span> <span class="n">slot_creator</span>
+
+<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">param_conv</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="k">import</span> <span class="n">call_if_callable</span>
+
+
+<div class="viewcode-block" id="QHAdamOptimizer"><a class="viewcode-back" href="../../../tf.html#qhoptim.tf.QHAdamOptimizer">[docs]</a><span class="k">class</span> <span class="nc">QHAdamOptimizer</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Implements the QHAdam optimization algorithm `(Ma and Yarats, 2019)`_.</span>
+
+<span class="sd">    Note that the NAdam optimizer is accessible via a specific parameterization</span>
+<span class="sd">    of QHAdam. See :func:`from_nadam()` for details.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        learning_rate (float, optional):</span>
+<span class="sd">            learning rate (:math:`\alpha` from the paper)</span>
+<span class="sd">            (default: 1e-3)</span>
+<span class="sd">        beta1 (float, optional):</span>
+<span class="sd">            coefficient used for computing running average of gradient</span>
+<span class="sd">            (default: 0.9)</span>
+<span class="sd">        beta2 (float, optional): coefficients used for computing running average</span>
+<span class="sd">            of squared gradient (default: 0.999)</span>
+<span class="sd">        nu1 (float, optional): immediate discount factor used to estimate the</span>
+<span class="sd">            gradient (default: 1.0)</span>
+<span class="sd">        nu2 (float, optional): immediate discount factor used to estimate the</span>
+<span class="sd">            squared gradient (default: 1.0)</span>
+<span class="sd">        epsilon (float, optional): term added to the denominator to improve</span>
+<span class="sd">            numerical stability (default: 1e-8)</span>
+<span class="sd">        use_locking (bool):</span>
+<span class="sd">            whether or not to use locking parameter updates</span>
+<span class="sd">        name (str):</span>
+<span class="sd">            name of the optimizer</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; optimizer = qhoptim.tf.QHAdamOptimizer(</span>
+<span class="sd">        ...     learning_rate=3e-4, nu1=0.8, nu2=1.0,</span>
+<span class="sd">        ...     beta1=0.99, beta2=0.999)</span>
+
+<span class="sd">    .. _`(Ma and Yarats, 2019)`: https://arxiv.org/abs/1810.06801</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span>
+        <span class="n">nu1</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">nu2</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QHAdam&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span> <span class="o">=</span> <span class="n">beta1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta1_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta2</span> <span class="o">=</span> <span class="n">beta2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta2_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu1</span> <span class="o">=</span> <span class="n">nu1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu1_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu2</span> <span class="o">=</span> <span class="n">nu2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu2_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_beta_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
+                <span class="n">graph</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">graph</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_non_slot_variable</span><span class="p">(</span><span class="s2">&quot;beta1_weight&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_non_slot_variable</span><span class="p">(</span><span class="s2">&quot;beta2_weight&quot;</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_slots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
+        <span class="n">first_var</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">var_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">zero</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_non_slot_variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">zero</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beta1_weight&quot;</span><span class="p">,</span> <span class="n">colocate_with</span><span class="o">=</span><span class="n">first_var</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_non_slot_variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">zero</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beta2_weight&quot;</span><span class="p">,</span> <span class="n">colocate_with</span><span class="o">=</span><span class="n">first_var</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zeros_slot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;exp_avg&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zeros_slot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;exp_avg_sq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">)</span>
+
+        <span class="n">beta1</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta1_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">beta1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beta1&quot;</span><span class="p">)</span>
+
+        <span class="n">beta2</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta2_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">beta2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;beta2&quot;</span><span class="p">)</span>
+
+        <span class="n">nu1</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu1_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">nu1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;nu1&quot;</span><span class="p">)</span>
+
+        <span class="n">nu2</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nu2_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">nu2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;nu2&quot;</span><span class="p">)</span>
+
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">call_if_callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;epsilon&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_ops</span><span class="p">,</span> <span class="n">name_scope</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">update_ops</span><span class="p">):</span>
+            <span class="n">beta1_weight</span><span class="p">,</span> <span class="n">beta2_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_beta_weights</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">colocate_with</span><span class="p">(</span><span class="n">beta1_weight</span><span class="p">):</span>
+                <span class="n">update_beta1</span> <span class="o">=</span> <span class="n">beta1_weight</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">beta1_weight</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta1_tensor</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span>
+                <span class="p">)</span>
+                <span class="n">update_beta2</span> <span class="o">=</span> <span class="n">beta2_weight</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">beta2_weight</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta2_tensor</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span>
+                <span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">control_flow_ops</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">update_ops</span> <span class="o">+</span> <span class="p">[</span><span class="n">update_beta1</span><span class="p">,</span> <span class="n">update_beta2</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="n">name_scope</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_apply_dense_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="n">beta1_weight</span><span class="p">,</span> <span class="n">beta2_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_beta_weights</span><span class="p">()</span>
+
+        <span class="n">learning_rate_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">beta1_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta1_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">beta2_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta2_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">nu1_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu1_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">nu2_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu2_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">epsilon_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+
+        <span class="n">beta1_weight</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">beta1_weight</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta1_tensor</span> <span class="o">+</span> <span class="mf">1.0</span>
+        <span class="n">beta2_weight</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">beta2_weight</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta2_tensor</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+        <span class="n">beta1_adj</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">beta1_weight</span><span class="p">)</span>
+        <span class="n">beta2_adj</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">beta2_weight</span><span class="p">)</span>
+
+        <span class="n">exp_avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;exp_avg&quot;</span><span class="p">)</span>
+        <span class="n">exp_avg_sq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;exp_avg_sq&quot;</span><span class="p">)</span>
+
+        <span class="n">grad_sq</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">grad</span>
+
+        <span class="n">exp_avg_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">exp_avg</span><span class="p">,</span> <span class="n">beta1_adj</span> <span class="o">*</span> <span class="n">exp_avg</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta1_adj</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span>
+        <span class="p">)</span>
+        <span class="n">exp_avg_sq_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">exp_avg_sq</span><span class="p">,</span> <span class="n">beta2_adj</span> <span class="o">*</span> <span class="n">exp_avg_sq</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta2_adj</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad_sq</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span>
+        <span class="p">)</span>
+
+        <span class="n">avg_grad_tensor</span> <span class="o">=</span> <span class="n">nu1_tensor</span> <span class="o">*</span> <span class="n">exp_avg_tensor</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nu1_tensor</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span>
+        <span class="n">avg_grad_sq_tensor</span> <span class="o">=</span> <span class="n">nu2_tensor</span> <span class="o">*</span> <span class="n">exp_avg_sq_tensor</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nu2_tensor</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad_sq</span>
+        <span class="n">avg_grad_rms_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">avg_grad_sq_tensor</span><span class="p">)</span>
+
+        <span class="n">var_update</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span>
+            <span class="n">var</span><span class="p">,</span>
+            <span class="o">-</span><span class="n">learning_rate_tensor</span> <span class="o">*</span> <span class="n">avg_grad_tensor</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_grad_rms_tensor</span> <span class="o">+</span> <span class="n">epsilon_tensor</span><span class="p">),</span>
+            <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">control_flow_ops</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">var_update</span><span class="p">,</span> <span class="n">exp_avg_tensor</span><span class="p">,</span> <span class="n">exp_avg_sq_tensor</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_dense_shared</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resource_apply_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_dense_shared</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_apply_sparse_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">scatter_add</span><span class="p">):</span>
+        <span class="n">beta1_weight</span><span class="p">,</span> <span class="n">beta2_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_beta_weights</span><span class="p">()</span>
+
+        <span class="n">learning_rate_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">beta1_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta1_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">beta2_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta2_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">nu1_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu1_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">nu2_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nu2_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+        <span class="n">epsilon_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_tensor</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span>
+
+        <span class="n">beta1_weight</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">beta1_weight</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta1_tensor</span> <span class="o">+</span> <span class="mf">1.0</span>
+        <span class="n">beta2_weight</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">beta2_weight</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">)</span> <span class="o">*</span> <span class="n">beta2_tensor</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+        <span class="n">beta1_adj</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">beta1_weight</span><span class="p">)</span>
+        <span class="n">beta2_adj</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">beta2_weight</span><span class="p">)</span>
+
+        <span class="n">exp_avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;exp_avg&quot;</span><span class="p">)</span>
+        <span class="n">exp_avg_sq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s2">&quot;exp_avg_sq&quot;</span><span class="p">)</span>
+
+        <span class="n">grad_sq</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">*</span> <span class="n">grad</span>
+
+        <span class="n">exp_avg_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">exp_avg</span><span class="p">,</span> <span class="n">beta1_adj</span> <span class="o">*</span> <span class="n">exp_avg</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">exp_avg_tensor</span><span class="p">]):</span>
+            <span class="n">exp_avg_tensor</span> <span class="o">=</span> <span class="n">scatter_add</span><span class="p">(</span><span class="n">exp_avg</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta1_adj</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span><span class="p">)</span>
+
+        <span class="n">exp_avg_sq_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">exp_avg_sq</span><span class="p">,</span> <span class="n">beta2_adj</span> <span class="o">*</span> <span class="n">exp_avg_sq</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">exp_avg_sq_tensor</span><span class="p">]):</span>
+            <span class="n">exp_avg_sq_tensor</span> <span class="o">=</span> <span class="n">scatter_add</span><span class="p">(</span><span class="n">exp_avg_sq</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">beta2_adj</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad_sq</span><span class="p">)</span>
+
+        <span class="n">avg_grad</span> <span class="o">=</span> <span class="n">slot_creator</span><span class="o">.</span><span class="n">create_zeros_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">avg_grad_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">avg_grad</span><span class="p">,</span> <span class="n">nu1_tensor</span> <span class="o">*</span> <span class="n">exp_avg_tensor</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">avg_grad_tensor</span><span class="p">]):</span>
+            <span class="n">avg_grad_tensor</span> <span class="o">=</span> <span class="n">scatter_add</span><span class="p">(</span><span class="n">avg_grad</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nu1_tensor</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span><span class="p">)</span>
+
+        <span class="n">avg_grad_sq</span> <span class="o">=</span> <span class="n">slot_creator</span><span class="o">.</span><span class="n">create_zeros_slot</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="n">avg_grad_sq_tensor</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">avg_grad_sq</span><span class="p">,</span> <span class="n">nu2_tensor</span> <span class="o">*</span> <span class="n">exp_avg_sq_tensor</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">avg_grad_sq_tensor</span><span class="p">]):</span>
+            <span class="n">avg_grad_sq_tensor</span> <span class="o">=</span> <span class="n">scatter_add</span><span class="p">(</span><span class="n">avg_grad_sq</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nu2_tensor</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad_sq</span><span class="p">)</span>
+
+        <span class="n">avg_grad_rms_tensor</span> <span class="o">=</span> <span class="n">math_ops</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">avg_grad_sq_tensor</span><span class="p">)</span>
+
+        <span class="n">var_update</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span>
+            <span class="n">var</span><span class="p">,</span>
+            <span class="o">-</span><span class="n">learning_rate_tensor</span> <span class="o">*</span> <span class="n">avg_grad_tensor</span> <span class="o">/</span> <span class="p">(</span><span class="n">avg_grad_rms_tensor</span> <span class="o">+</span> <span class="n">epsilon_tensor</span><span class="p">),</span>
+            <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">control_flow_ops</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">var_update</span><span class="p">,</span> <span class="n">exp_avg_tensor</span><span class="p">,</span> <span class="n">exp_avg_sq_tensor</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">scatter_add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">scatter_add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_locking</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_sparse_shared</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">grad</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">scatter_add</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resource_apply_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">resource_scatter_add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">resource_variable_ops</span><span class="o">.</span><span class="n">resource_scatter_add</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)]):</span>
+                <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_sparse_shared</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">resource_scatter_add</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_params_to_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="s2">&quot;nu1&quot;</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">nu1</span><span class="p">,</span>
+            <span class="s2">&quot;nu2&quot;</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">nu2</span><span class="p">,</span>
+            <span class="s2">&quot;beta1&quot;</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">beta1</span><span class="p">,</span>
+            <span class="s2">&quot;beta2&quot;</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">beta2</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="QHAdamOptimizer.from_nadam"><a class="viewcode-back" href="../../../tf.html#qhoptim.tf.QHAdamOptimizer.from_nadam">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_nadam</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates the QHAdam hyperparameters required to recover the NAdam</span>
+<span class="sd">        optimizer `(Dozat, 2016)`_.</span>
+
+<span class="sd">        This is *not* an identical recovery of the formulation in the paper, due</span>
+<span class="sd">        to subtle differences in the application of the bias correction in the</span>
+<span class="sd">        first moment estimator. However, in practice, this difference is almost</span>
+<span class="sd">        certainly irrelevant.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            learning_rate(float, optional):</span>
+<span class="sd">                learning rate (:math:`\alpha` from the paper)</span>
+<span class="sd">                (default: 1e-3)</span>
+<span class="sd">            beta1 (float, optional):</span>
+<span class="sd">                coefficient used for computing running average of gradient</span>
+<span class="sd">                (default: 0.9)</span>
+<span class="sd">            beta2 (float, optional)</span>
+<span class="sd">                coefficients used for computing running averages of squared</span>
+<span class="sd">                gradient</span>
+<span class="sd">                (default: 0.999)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Five-element ``dict`` containing ``learning_rate``, ``beta1``,</span>
+<span class="sd">            ``beta2``, ``nu1``, and ``nu2`` to use in QHAdam.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; optimizer = qhoptim.tf.QHAdamOptimizer(</span>
+<span class="sd">            ...     **qhoptim.tf.QHAdamOptimizer.from_nadam(</span>
+<span class="sd">            ...         learning_rate=1e-3, beta1=0.9, beta2=0.999))</span>
+
+<span class="sd">        .. _`(Dozat, 2016)`: https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_params_to_dict</span><span class="p">(</span><span class="n">param_conv</span><span class="o">.</span><span class="n">from_nadam</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">beta1</span><span class="p">,</span> <span class="n">beta2</span><span class="p">))</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Facebook
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
