@@ -14,6 +14,10 @@ information, and an API reference.
 
 __ https://facebookresearch.github.io/qhoptim/
 
+Direct link to installation instructions: `here`__.
+
+__ https://facebookresearch.github.io/qhoptim/install
+
 Reference
 =========
 
