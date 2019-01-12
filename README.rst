@@ -10,7 +10,7 @@ Documentation
 =============
 
 Please refer to the `documentation`__ for installation instructions, usage
-information, and an API reference.
+information, and a Python API reference.
 
 __ https://facebookresearch.github.io/qhoptim/
 
