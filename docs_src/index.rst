@@ -2,6 +2,19 @@
 qhoptim: Quasi-hyperbolic optimization
 ======================================
 
+.. raw:: html
+
+    <!-- Place this tag where you want the button to render. -->
+    <a class="github-button" href="https://github.com/facebookresearch/qhoptim" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star facebookresearch/qhoptim on GitHub">Star</a>
+
+    <!-- Place this tag where you want the button to render. -->
+    <a class="github-button" href="https://github.com/facebookresearch/qhoptim/fork" data-icon="octicon-repo-forked" data-size="large" data-show-count="true" aria-label="Fork facebookresearch/qhoptim on GitHub">Fork</a>
+
+    <!-- Place this tag where you want the button to render. -->
+    <a class="github-button" href="https://github.com/facebookresearch/qhoptim/issues" data-icon="octicon-issue-opened" data-size="large" data-show-count="true" aria-label="Issue facebookresearch/qhoptim on GitHub">Issue</a>
+
+----
+
 The qhoptim library provides PyTorch and TensorFlow implementations of the
 quasi-hyperbolic momentum (QHM) and quasi-hyperbolic Adam (QHAdam)
 optimization algorithms from Facebook AI Research.
