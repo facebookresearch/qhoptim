@@ -12,7 +12,7 @@ setup(
     name="qhoptim",
     version=__version__,
     description="Quasi-hyperbolic optimization algorithms from Facebook AI Research.",
-    author="Jerry Ma",
+    author="Facebook AI Research",
     url="https://github.com/facebookresearch/qhoptim",
     license="MIT",
     packages=find_packages(exclude=["test_*"]),

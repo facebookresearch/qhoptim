@@ -21,7 +21,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parents[1].resolve()))
 from qhoptim import __version__  # noqa: E402
 
 project = "qhoptim"
-copyright = "Facebook"
+copyright = "Facebook, Inc. and its affiliates."
 author = "Facebook AI Research"
 
 # The short X.Y version
