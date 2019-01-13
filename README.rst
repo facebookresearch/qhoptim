@@ -6,6 +6,41 @@ This repository contains PyTorch and TensorFlow implementations of the
 quasi-hyperbolic momentum (QHM) and quasi-hyperbolic Adam (QHAdam)
 optimization algorithms from Facebook AI Research.
 
+Quickstart
+==========
+
+Use this one-liner for installation::
+
+    $ pip install git+https://github.com/facebookresearch/qhoptim.git
+
+Then, you can instantiate the optimizers in PyTorch:
+
+.. code-block:: python
+
+    >>> from qhoptim.pyt import QHM, QHAdam
+
+    # something like this for QHM
+    >>> optimizer = QHM(model.parameters(), lr=1.0, nu=0.7, momentum=0.999)
+
+    # or something like this for QHAdam
+    >>> optimizer = QHAdam(
+    ...     model.parameters(), lr=1e-3, nus=(0.7, 1.0), betas=(0.995, 0.999))
+
+Or in TensorFlow:
+
+.. code-block:: python
+
+    >>> from qhoptim.tf import QHMOptimizer, QHAdamOptimizer
+
+    # something like this for QHM
+    >>> optimizer = QHMOptimizer(
+    ...     learning_rate=1.0, nu=0.7, momentum=0.999)
+
+    # or something like this for QHAdam
+    >>> optimizer = QHAdamOptimizer(
+    ...     learning_rate=1e-3, nu1=0.7, nu2=1.0, beta1=0.995, beta2=0.999)
+
+
 Documentation
 =============
 

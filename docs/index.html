@@ -170,6 +170,36 @@ normalize the learning rate by dividing by <span class="math notranslate nohighl
 <p>Similarly, for those who use Adam with <span class="math notranslate nohighlight">\(\beta_1 = 0.9\)</span>, we recommend
 trying out QHAdam with <span class="math notranslate nohighlight">\(\nu_1 = 0.7\)</span>, <span class="math notranslate nohighlight">\(\beta_1 = 0.995\)</span>,
 <span class="math notranslate nohighlight">\(\nu_2 = 1\)</span>, and all other parameters unchanged.</p>
+<div class="section" id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>Use this one-liner for installation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/facebookresearch/qhoptim.git
+</pre></div>
+</div>
+<p>Then, you can instantiate the optimizers in PyTorch:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qhoptim.pyt</span> <span class="kn">import</span> <span class="n">QHM</span><span class="p">,</span> <span class="n">QHAdam</span>
+
+<span class="go"># something like this for QHM</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">QHM</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
+
+<span class="go"># or something like this for QHAdam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">QHAdam</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">nus</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">betas</span><span class="o">=</span><span class="p">(</span><span class="mf">0.995</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Or in TensorFlow:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qhoptim.tf</span> <span class="kn">import</span> <span class="n">QHMOptimizer</span><span class="p">,</span> <span class="n">QHAdamOptimizer</span>
+
+<span class="go"># something like this for QHM</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">QHMOptimizer</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
+
+<span class="go"># or something like this for QHAdam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">QHAdamOptimizer</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">nu1</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">nu2</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.995</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
 <p>QHM and QHAdam were proposed in the ICLR 2019 paper
