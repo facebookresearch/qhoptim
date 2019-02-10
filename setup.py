@@ -5,12 +5,14 @@
 
 from setuptools import setup, find_packages
 
-from qhoptim import __version__
+
+with open("qhoptim/version.py") as infile:
+    exec(infile.read())
 
 
 setup(
     name="qhoptim",
-    version=__version__,
+    version=version,
     description="Quasi-hyperbolic optimization algorithms from Facebook AI Research.",
     author="Facebook AI Research",
     url="https://github.com/facebookresearch/qhoptim",
