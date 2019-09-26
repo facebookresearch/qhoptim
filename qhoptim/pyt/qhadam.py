@@ -30,9 +30,10 @@ class QHAdam(Optimizer):
         eps (float, optional): term added to the denominator to improve
             numerical stability
             (default: 1e-8)
-        weight_decay (float, optional): weight decay
-            (L2 regularlization coefficient, times two)
-            (default: 0.0)
+        weight_decay (float, optional): weight decay (default: 0.0)
+        decouple_weight_decay (bool, optional): whether to decouple the weight
+            decay from the gradient-based optimization step
+            (default: False)
 
     Example:
         >>> optimizer = qhoptim.pyt.QHAdam(
@@ -45,7 +46,16 @@ class QHAdam(Optimizer):
     .. _`(Ma and Yarats, 2019)`: https://arxiv.org/abs/1810.06801
     """
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), nus=(1.0, 1.0), weight_decay=0.0, eps=1e-8):
+    def __init__(
+        self,
+        params,
+        lr=1e-3,
+        betas=(0.9, 0.999),
+        nus=(1.0, 1.0),
+        weight_decay=0.0,
+        decouple_weight_decay=False,
+        eps=1e-8,
+    ):
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -57,7 +67,14 @@ class QHAdam(Optimizer):
         if weight_decay < 0.0:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
 
-        defaults = {"lr": lr, "betas": betas, "nus": nus, "weight_decay": weight_decay, "eps": eps}
+        defaults = {
+            "lr": lr,
+            "betas": betas,
+            "nus": nus,
+            "weight_decay": weight_decay,
+            "decouple_weight_decay": decouple_weight_decay,
+            "eps": eps,
+        }
         super(QHAdam, self).__init__(params, defaults)
 
     def step(self, closure=None):
@@ -76,6 +93,7 @@ class QHAdam(Optimizer):
             beta1, beta2 = group["betas"]
             nu1, nu2 = group["nus"]
             weight_decay = group["weight_decay"]
+            decouple_weight_decay = group["decouple_weight_decay"]
             eps = group["eps"]
 
             for p in group["params"]:
@@ -89,7 +107,10 @@ class QHAdam(Optimizer):
                 param_state = self.state[p]
 
                 if weight_decay != 0:
-                    d_p.add_(weight_decay, p.data)
+                    if decouple_weight_decay:
+                        p.data.mul_(1 - lr * weight_decay)
+                    else:
+                        d_p.add_(weight_decay, p.data)
 
                 d_p_sq = d_p.mul(d_p)
 
@@ -164,3 +185,18 @@ class QHAdam(Optimizer):
         .. _`(Dozat, 2016)`: https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ
         """
         return cls._params_to_dict(param_conv.from_nadam(lr, betas[0], betas[1]))
+
+
+def QHAdamW(params, *args, **kwargs):
+    r"""Constructs the decoupled decay variant of the QHAdam optimization
+    algorithm `(Ma and Yarats, 2019)`_,
+    as proposed by `Loschilov and Hutter (2017)`_.
+
+    Shares all arguments of the :class:`QHAdam` constructor –
+    equivalent to constructing :class:`QHAdam` with
+    ``decouple_weight_decay=True``.
+
+    .. _`Loschilov and Hutter (2017)`: https://arxiv.org/abs/1711.05101
+    .. _`(Ma and Yarats, 2019)`: https://arxiv.org/abs/1810.06801
+    """
+    return QHAdam(params, *args, decouple_weight_decay=True, **kwargs)
