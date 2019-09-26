@@ -53,3 +53,5 @@ QHAdam API reference
 
 .. autoclass:: qhoptim.pyt.QHAdam
    :members:
+
+.. autofunction:: qhoptim.pyt.QHAdamW

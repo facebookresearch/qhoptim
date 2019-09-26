@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quasi-hyperbolic optimizers for PyTorch &mdash; qhoptim 1.0.0 documentation</title>
+  <title>Quasi-hyperbolic optimizers for PyTorch &mdash; qhoptim 1.0.1 documentation</title>
   
 
   
@@ -19,34 +19,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" defer="defer" type="text/javascript" src="https://buttons.github.io/buttons.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Quasi-hyperbolic optimizers for TensorFlow" href="tf.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -448,7 +451,7 @@ to use in QHM.</p>
 <h2>QHAdam API reference<a class="headerlink" href="#qhadam-api-reference" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="qhoptim.pyt.QHAdam">
-<em class="property">class </em><code class="descclassname">qhoptim.pyt.</code><code class="descname">QHAdam</code><span class="sig-paren">(</span><em>params</em>, <em>lr=0.001</em>, <em>betas=(0.9</em>, <em>0.999)</em>, <em>nus=(1.0</em>, <em>1.0)</em>, <em>weight_decay=0.0</em>, <em>eps=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/pyt/qhadam.html#QHAdam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.pyt.QHAdam" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">qhoptim.pyt.</code><code class="descname">QHAdam</code><span class="sig-paren">(</span><em>params</em>, <em>lr=0.001</em>, <em>betas=(0.9</em>, <em>0.999)</em>, <em>nus=(1.0</em>, <em>1.0)</em>, <em>weight_decay=0.0</em>, <em>decouple_weight_decay=False</em>, <em>eps=1e-08</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/pyt/qhadam.html#QHAdam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.pyt.QHAdam" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements the QHAdam optimization algorithm <a class="reference external" href="https://arxiv.org/abs/1810.06801">(Ma and Yarats, 2019)</a>.</p>
 <p>Note that the NAdam optimizer is accessible via a specific parameterization
 of QHAdam. See <a class="reference internal" href="#qhoptim.pyt.QHAdam.from_nadam" title="qhoptim.pyt.QHAdam.from_nadam"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_nadam()</span></code></a> for details.</p>
@@ -470,9 +473,10 @@ estimate the gradient and its square
 <li><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – term added to the denominator to improve
 numerical stability
 (default: 1e-8)</li>
-<li><strong>weight_decay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – weight decay
-(L2 regularlization coefficient, times two)
-(default: 0.0)</li>
+<li><strong>weight_decay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – weight decay (default: 0.0)</li>
+<li><strong>decouple_weight_decay</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – whether to decouple the weight
+decay from the gradient-based optimization step
+(default: False)</li>
 </ul>
 </td>
 </tr>
@@ -541,6 +545,17 @@ to use in QHAdam.</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="qhoptim.pyt.QHAdamW">
+<code class="descclassname">qhoptim.pyt.</code><code class="descname">QHAdamW</code><span class="sig-paren">(</span><em>params</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/pyt/qhadam.html#QHAdamW"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.pyt.QHAdamW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs the decoupled decay variant of the QHAdam optimization
+algorithm <a class="reference external" href="https://arxiv.org/abs/1810.06801">(Ma and Yarats, 2019)</a>,
+as proposed by <a class="reference external" href="https://arxiv.org/abs/1711.05101">Loschilov and Hutter (2017)</a>.</p>
+<p>Shares all arguments of the <a class="reference internal" href="#qhoptim.pyt.QHAdam" title="qhoptim.pyt.QHAdam"><code class="xref py py-class docutils literal notranslate"><span class="pre">QHAdam</span></code></a> constructor –
+equivalent to constructing <a class="reference internal" href="#qhoptim.pyt.QHAdam" title="qhoptim.pyt.QHAdam"><code class="xref py py-class docutils literal notranslate"><span class="pre">QHAdam</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">decouple_weight_decay=True</span></code>.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -555,7 +570,7 @@ to use in QHAdam.</p>
         <a href="tf.html" class="btn btn-neutral float-right" title="Quasi-hyperbolic optimizers for TensorFlow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="install.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -581,27 +596,16 @@ to use in QHAdam.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" defer="defer" type="text/javascript" src="https://buttons.github.io/buttons.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
