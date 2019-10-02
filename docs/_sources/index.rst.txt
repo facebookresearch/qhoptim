@@ -24,7 +24,7 @@ Quickstart
 
 Use this one-liner for installation::
 
-    $ pip install git+https://github.com/facebookresearch/qhoptim.git
+    $ pip install qhoptim
 
 Then, you can instantiate the optimizers in PyTorch:
 

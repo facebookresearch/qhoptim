@@ -4,9 +4,9 @@ Installation
 
 Installation is extremely straightforward via pip::
 
-    $ pip install git+https://github.com/facebookresearch/qhoptim.git
+    $ pip install qhoptim
 
-This is equivalent to the following::
+Or, install directly from source::
 
     $ git clone https://github.com/facebookresearch/qhoptim.git
     $ cd qhoptim

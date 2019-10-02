@@ -19,36 +19,33 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" defer="defer" type="text/javascript" src="https://buttons.github.io/buttons.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
 
+  
+  
     
 
   
+
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Quasi-hyperbolic optimizers for PyTorch" href="pyt.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
+
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search">
           
 
           
@@ -167,7 +164,7 @@
 <p>The TensorFlow optimizer classes are <a class="reference internal" href="#qhoptim.tf.QHMOptimizer" title="qhoptim.tf.QHMOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">qhoptim.tf.QHMOptimizer</span></code></a> and
 <a class="reference internal" href="#qhoptim.tf.QHAdamOptimizer" title="qhoptim.tf.QHAdamOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">qhoptim.tf.QHAdamOptimizer</span></code></a>.</p>
 <p>Use these optimizers as you would any other TensorFlow optimizer:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qhoptim.tf</span> <span class="kn">import</span> <span class="n">QHMOptimizer</span><span class="p">,</span> <span class="n">QHAdamOptimizer</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">qhoptim.tf</span> <span class="k">import</span> <span class="n">QHMOptimizer</span><span class="p">,</span> <span class="n">QHAdamOptimizer</span>
 
 <span class="go"># something like this for QHM</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">QHMOptimizer</span><span class="p">(</span>
@@ -183,34 +180,30 @@
 <h2>QHM API reference<a class="headerlink" href="#qhm-api-reference" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="qhoptim.tf.QHMOptimizer">
-<em class="property">class </em><code class="descclassname">qhoptim.tf.</code><code class="descname">QHMOptimizer</code><span class="sig-paren">(</span><em>learning_rate</em>, <em>momentum</em>, <em>nu</em>, <em>use_locking=False</em>, <em>name='QHM'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">qhoptim.tf.</code><code class="sig-name descname">QHMOptimizer</code><span class="sig-paren">(</span><em class="sig-param">learning_rate</em>, <em class="sig-param">momentum</em>, <em class="sig-param">nu</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name='QHM'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements the quasi-hyperbolic momentum (QHM) optimization algorithm
 <a class="reference external" href="https://arxiv.org/abs/1810.06801">(Ma and Yarats, 2019)</a>.</p>
 <p>Note that many other optimization algorithms are accessible via specific
 parameterizations of QHM. See <a class="reference internal" href="#qhoptim.tf.QHMOptimizer.from_accsgd" title="qhoptim.tf.QHMOptimizer.from_accsgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_accsgd()</span></code></a>,
 <a class="reference internal" href="#qhoptim.tf.QHMOptimizer.from_robust_momentum" title="qhoptim.tf.QHMOptimizer.from_robust_momentum"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_robust_momentum()</span></code></a>, etc. for details.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)</li>
-<li><strong>momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – momentum factor (<span class="math notranslate nohighlight">\(\beta\)</span> from the paper)</li>
-<li><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – immediate discount factor (<span class="math notranslate nohighlight">\(\nu\)</span> from the paper)</li>
-<li><strong>use_locking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether or not to use locking parameter updates</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the optimizer</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)</p></li>
+<li><p><strong>momentum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – momentum factor (<span class="math notranslate nohighlight">\(\beta\)</span> from the paper)</p></li>
+<li><p><strong>nu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – immediate discount factor (<span class="math notranslate nohighlight">\(\nu\)</span> from the paper)</p></li>
+<li><p><strong>use_locking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether or not to use locking parameter updates</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the optimizer</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>Mathematically, QHM is a simple interpolation between plain SGD and
 momentum:</p>
 <div class="math notranslate nohighlight">
@@ -222,7 +215,7 @@ momentum:</p>
         \theta_t + \alpha \left[ (1 - \nu) \cdot \nabla_t +
                                  \nu \cdot g_{t + 1} \right]
 \end{align*}\end{split}\]</div>
-<p class="last">Here, <span class="math notranslate nohighlight">\(\alpha\)</span> is the learning rate, <span class="math notranslate nohighlight">\(\beta\)</span> is the momentum
+<p>Here, <span class="math notranslate nohighlight">\(\alpha\)</span> is the learning rate, <span class="math notranslate nohighlight">\(\beta\)</span> is the momentum
 factor, and <span class="math notranslate nohighlight">\(\nu\)</span> is the “immediate discount” factor which
 controls the interpolation between plain SGD and momentum.
 <span class="math notranslate nohighlight">\(g_t\)</span> is the momentum buffer, <span class="math notranslate nohighlight">\(\theta_t\)</span> is the parameter
@@ -230,37 +223,33 @@ vector, and <span class="math notranslate nohighlight">\(\nabla_t\)</span> is th
 <span class="math notranslate nohighlight">\(\theta_t\)</span>.</p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">QHM uses <strong>dampened</strong> momentum. This means that when converting from
+<p class="admonition-title">Note</p>
+<p>QHM uses <strong>dampened</strong> momentum. This means that when converting from
 plain momentum to QHM, the learning rate must be scaled by
 <span class="math notranslate nohighlight">\(\frac{1}{1 - \beta}\)</span>. For example, momentum with learning rate
 <span class="math notranslate nohighlight">\(\alpha = 0.1\)</span> and momentum <span class="math notranslate nohighlight">\(\beta = 0.9\)</span> should be
 converted to QHM with learning rate <span class="math notranslate nohighlight">\(\alpha = 1.0\)</span>.</p>
 </div>
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHMOptimizer.from_accsgd">
-<em class="property">classmethod </em><code class="descname">from_accsgd</code><span class="sig-paren">(</span><em>delta</em>, <em>kappa</em>, <em>xi</em>, <em>eps=0.7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_accsgd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_accsgd" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_accsgd</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">kappa</em>, <em class="sig-param">xi</em>, <em class="sig-param">eps=0.7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_accsgd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_accsgd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHM hyperparameters required to recover the AccSGD
 optimizer <a class="reference external" href="https://arxiv.org/abs/1803.05591">(Kidambi et al., 2018)</a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – short step (see reference)</li>
-<li><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – long step parameter (see reference)</li>
-<li><strong>xi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – statistical advantage parameter (see reference)</li>
-<li><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – arbitrary value, between 0 and 1 exclusive (see reference)
-(default: 0.7)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – short step (see reference)</p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – long step parameter (see reference)</p></li>
+<li><p><strong>xi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – statistical advantage parameter (see reference)</p></li>
+<li><p><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – arbitrary value, between 0 and 1 exclusive (see reference)
+(default: 0.7)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">nu</span></code> to use in QHM.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="o">.</span><span class="n">from_accsgd</span><span class="p">(</span>
@@ -269,28 +258,24 @@ and <code class="docutils literal notranslate"><span class="pre">nu</span></code
 </div>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHMOptimizer.from_pid">
-<em class="property">classmethod </em><code class="descname">from_pid</code><span class="sig-paren">(</span><em>k_p</em>, <em>k_i</em>, <em>k_d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_pid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_pid" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_pid</code><span class="sig-paren">(</span><em class="sig-param">k_p</em>, <em class="sig-param">k_i</em>, <em class="sig-param">k_d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_pid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_pid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHM hyperparameters required to recover a PID
 optimizer as described in <a class="reference external" href="https://web.archive.org/web/20181027184056/http://www.argmin.net/2018/04/19/pid/">Recht (2018)</a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>k_p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – proportional gain (see reference)</li>
-<li><strong>k_i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – integral gain (see reference)</li>
-<li><strong>k_d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – derivative gain (see reference)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k_p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – proportional gain (see reference)</p></li>
+<li><p><strong>k_i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – integral gain (see reference)</p></li>
+<li><p><strong>k_d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – derivative gain (see reference)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">nu</span></code> to use in QHM.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="o">.</span><span class="n">from_pid</span><span class="p">(</span>
@@ -299,30 +284,26 @@ and <code class="docutils literal notranslate"><span class="pre">nu</span></code
 </div>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHMOptimizer.from_robust_momentum">
-<em class="property">classmethod </em><code class="descname">from_robust_momentum</code><span class="sig-paren">(</span><em>l</em>, <em>kappa</em>, <em>rho=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_robust_momentum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_robust_momentum" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_robust_momentum</code><span class="sig-paren">(</span><em class="sig-param">l</em>, <em class="sig-param">kappa</em>, <em class="sig-param">rho=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_robust_momentum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_robust_momentum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHM hyperparameters required to recover the Robust
 Momentum <a class="reference external" href="https://arxiv.org/abs/1710.04753">(Cyrus et al., 2018)</a> or Triple Momentum
 <a class="reference external" href="http://www.optimization-online.org/DB_FILE/2017/03/5908.pdf">(Scoy et al., 2018)</a> optimizers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>l</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Lipschitz constant of gradient (see reference)</li>
-<li><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – condition ratio (see reference)</li>
-<li><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – noise-free convergence rate. If None, will return the
-parameters for the Triple Momentum optimizer.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Lipschitz constant of gradient (see reference)</p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – condition ratio (see reference)</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – noise-free convergence rate. If None, will return the
+parameters for the Triple Momentum optimizer.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">nu</span></code> to use in QHM.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="o">.</span><span class="n">from_robust_momentum</span><span class="p">(</span>
@@ -331,28 +312,24 @@ and <code class="docutils literal notranslate"><span class="pre">nu</span></code
 </div>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHMOptimizer.from_synthesized_nesterov">
-<em class="property">classmethod </em><code class="descname">from_synthesized_nesterov</code><span class="sig-paren">(</span><em>alpha</em>, <em>beta1</em>, <em>beta2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_synthesized_nesterov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_synthesized_nesterov" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_synthesized_nesterov</code><span class="sig-paren">(</span><em class="sig-param">alpha</em>, <em class="sig-param">beta1</em>, <em class="sig-param">beta2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_synthesized_nesterov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_synthesized_nesterov" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHM hyperparameters required to recover the
 synthesized Nesterov optimizer (Section 6 of <a class="reference external" href="https://arxiv.org/abs/1408.3595">Lessard et al. (2016)</a>).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – learning rate</li>
-<li><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – first momentum (see reference)</li>
-<li><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – second momentum (see reference)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – learning rate</p></li>
+<li><p><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – first momentum (see reference)</p></li>
+<li><p><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – second momentum (see reference)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">nu</span></code> to use in QHM.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="o">.</span><span class="n">from_synthesized_nesterov</span><span class="p">(</span>
@@ -361,9 +338,9 @@ and <code class="docutils literal notranslate"><span class="pre">nu</span></code
 </div>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHMOptimizer.from_two_state_optimizer">
-<em class="property">classmethod </em><code class="descname">from_two_state_optimizer</code><span class="sig-paren">(</span><em>h</em>, <em>k</em>, <em>l</em>, <em>m</em>, <em>q</em>, <em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_two_state_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_two_state_optimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_two_state_optimizer</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">m</em>, <em class="sig-param">q</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhm.html#QHMOptimizer.from_two_state_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHMOptimizer.from_two_state_optimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHM hyperparameters required to recover the
 following optimizer (named “TSO” in <a class="reference external" href="https://arxiv.org/abs/1810.06801">Ma and Yarats (2019)</a>):</p>
 <div class="math notranslate nohighlight">
@@ -377,26 +354,22 @@ following optimizer (named “TSO” in <a class="reference external" href="http
 <span class="math notranslate nohighlight">\(\nabla_t\)</span> is the gradient with respect to <span class="math notranslate nohighlight">\(\theta_t\)</span>.</p>
 <p>Be careful that your coefficients satisfy the regularity conditions
 from the reference.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
-<li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
-<li><strong>l</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
-<li><strong>m</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
-<li><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
-<li><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
+<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
+<li><p><strong>l</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
+<li><p><strong>m</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
+<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – see description</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Three-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">momentum</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">nu</span></code> to use in QHM.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHMOptimizer</span><span class="o">.</span><span class="n">from_two_state_optimizer</span><span class="p">(</span>
@@ -412,70 +385,62 @@ and <code class="docutils literal notranslate"><span class="pre">nu</span></code
 <h2>QHAdam API reference<a class="headerlink" href="#qhadam-api-reference" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="qhoptim.tf.QHAdamOptimizer">
-<em class="property">class </em><code class="descclassname">qhoptim.tf.</code><code class="descname">QHAdamOptimizer</code><span class="sig-paren">(</span><em>learning_rate=0.001</em>, <em>beta1=0.9</em>, <em>beta2=0.999</em>, <em>nu1=1.0</em>, <em>nu2=1.0</em>, <em>epsilon=1e-08</em>, <em>use_locking=False</em>, <em>name='QHAdam'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhadam.html#QHAdamOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHAdamOptimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">qhoptim.tf.</code><code class="sig-name descname">QHAdamOptimizer</code><span class="sig-paren">(</span><em class="sig-param">learning_rate=0.001</em>, <em class="sig-param">beta1=0.9</em>, <em class="sig-param">beta2=0.999</em>, <em class="sig-param">nu1=1.0</em>, <em class="sig-param">nu2=1.0</em>, <em class="sig-param">epsilon=1e-08</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name='QHAdam'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhadam.html#QHAdamOptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHAdamOptimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements the QHAdam optimization algorithm <a class="reference external" href="https://arxiv.org/abs/1810.06801">(Ma and Yarats, 2019)</a>.</p>
 <p>Note that the NAdam optimizer is accessible via a specific parameterization
 of QHAdam. See <a class="reference internal" href="#qhoptim.tf.QHAdamOptimizer.from_nadam" title="qhoptim.tf.QHAdamOptimizer.from_nadam"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_nadam()</span></code></a> for details.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)
-(default: 1e-3)</li>
-<li><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficient used for computing running average of gradient
-(default: 0.9)</li>
-<li><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficients used for computing running average
-of squared gradient (default: 0.999)</li>
-<li><strong>nu1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – immediate discount factor used to estimate the
-gradient (default: 1.0)</li>
-<li><strong>nu2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – immediate discount factor used to estimate the
-squared gradient (default: 1.0)</li>
-<li><strong>epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – term added to the denominator to improve
-numerical stability (default: 1e-8)</li>
-<li><strong>use_locking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether or not to use locking parameter updates</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the optimizer</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)
+(default: 1e-3)</p></li>
+<li><p><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficient used for computing running average of gradient
+(default: 0.9)</p></li>
+<li><p><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficients used for computing running average
+of squared gradient (default: 0.999)</p></li>
+<li><p><strong>nu1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – immediate discount factor used to estimate the
+gradient (default: 1.0)</p></li>
+<li><p><strong>nu2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – immediate discount factor used to estimate the
+squared gradient (default: 1.0)</p></li>
+<li><p><strong>epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – term added to the denominator to improve
+numerical stability (default: 1e-8)</p></li>
+<li><p><strong>use_locking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – whether or not to use locking parameter updates</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the optimizer</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHAdamOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">3e-4</span><span class="p">,</span> <span class="n">nu1</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">nu2</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">beta1</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
 </pre></div>
 </div>
-<dl class="classmethod">
+<dl class="method">
 <dt id="qhoptim.tf.QHAdamOptimizer.from_nadam">
-<em class="property">classmethod </em><code class="descname">from_nadam</code><span class="sig-paren">(</span><em>learning_rate=0.001</em>, <em>beta1=0.9</em>, <em>beta2=0.999</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhadam.html#QHAdamOptimizer.from_nadam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHAdamOptimizer.from_nadam" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_nadam</code><span class="sig-paren">(</span><em class="sig-param">learning_rate=0.001</em>, <em class="sig-param">beta1=0.9</em>, <em class="sig-param">beta2=0.999</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qhoptim/tf/qhadam.html#QHAdamOptimizer.from_nadam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qhoptim.tf.QHAdamOptimizer.from_nadam" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the QHAdam hyperparameters required to recover the NAdam
 optimizer <a class="reference external" href="https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ">(Dozat, 2016)</a>.</p>
 <p>This is <em>not</em> an identical recovery of the formulation in the paper, due
 to subtle differences in the application of the bias correction in the
 first moment estimator. However, in practice, this difference is almost
 certainly irrelevant.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)
-(default: 1e-3)</li>
-<li><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficient used for computing running average of gradient
-(default: 0.9)</li>
-<li><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficients used for computing running averages of squared
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – learning rate (<span class="math notranslate nohighlight">\(\alpha\)</span> from the paper)
+(default: 1e-3)</p></li>
+<li><p><strong>beta1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficient used for computing running average of gradient
+(default: 0.9)</p></li>
+<li><p><strong>beta2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – coefficients used for computing running averages of squared
 gradient
-(default: 0.999)</li>
+(default: 0.999)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Five-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">beta1</span></code>,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Five-element <code class="docutils literal notranslate"><span class="pre">dict</span></code> containing <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">beta1</span></code>,
 <code class="docutils literal notranslate"><span class="pre">beta2</span></code>, <code class="docutils literal notranslate"><span class="pre">nu1</span></code>, and <code class="docutils literal notranslate"><span class="pre">nu2</span></code> to use in QHAdam.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHAdamOptimizer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="o">**</span><span class="n">qhoptim</span><span class="o">.</span><span class="n">tf</span><span class="o">.</span><span class="n">QHAdamOptimizer</span><span class="o">.</span><span class="n">from_nadam</span><span class="p">(</span>
@@ -498,7 +463,7 @@ gradient
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="pyt.html" class="btn btn-neutral float-left" title="Quasi-hyperbolic optimizers for PyTorch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pyt.html" class="btn btn-neutral" title="Quasi-hyperbolic optimizers for PyTorch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -524,16 +489,28 @@ gradient
   
 
 
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" defer="defer" type="text/javascript" src="https://buttons.github.io/buttons.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
